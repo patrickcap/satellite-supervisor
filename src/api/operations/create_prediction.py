@@ -14,7 +14,7 @@ from src.api.resources.post_satellite_purpose_response import PostSatellitePurpo
 from src.model.model import Model
 from src.utils.logging import setup_logger
 
-MODEL_PATH: Final[str] = './models/ss_model_001.pickle'
+MODEL_PATH: Final[str] = '../models/ss_model_001.pickle'
 
 _logger = setup_logger()
 ss_model_001 = None  # type: ignore
