@@ -3,6 +3,8 @@ from contextlib import asynccontextmanager
 from typing import AsyncGenerator, Final
 
 import pandas as pd
+import pickle
+
 from fastapi import APIRouter, Depends, FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.security import APIKeyHeader
@@ -14,20 +16,14 @@ from src.api.resources.post_satellite_purpose_response import PostSatellitePurpo
 from src.model.model import Model
 from src.utils.logging import setup_logger
 
-MODEL_PATH: Final[str] = '../models/ss_model_001.pickle'
+MODEL_PATH: Final[str] = './models/ss_model_001.pkl'
 
 _logger = setup_logger()
 ss_model_001 = None  # type: ignore
 prediction_router = APIRouter(prefix='/satellite-purpose')
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:  # pylint: disable=unused-argument
-    global ss_model_001
-    ss_model_001 = Model.load_trained_model(MODEL_PATH)
-    print('HELOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO')
-    _logger.info('BYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
-    yield
+with open(MODEL_PATH, 'rb') as f:
+    ss_model_001 = pickle.load(f)
 
 
 @prediction_router.post('', response_model=PostSatellitePurposeResponse, status_code=201)
@@ -43,12 +39,12 @@ async def predict_satellite_purpose(satellite: Satellite, api_key: str = Depends
 def _get_satellite_purpose_prediction(satellite: Satellite) -> float:
 
     input_df = pd.DataFrame({
-        'country_operator_owner': [0],
-        'operator_owner': [0],
-        'users': [0],
-        'orbit_type': [0],
-        'contractor': [0],
-        'orbit_class': [0]
+        'Country of Operator/Owner': [0],
+        'Operator/Owner': [0],
+        'Users': [0],
+        'Type of Orbit': [0],
+        'Contractor': [0],
+        'Class of Orbit': [0]
     })
     satellite_purpose = ss_model_001.predict(input_df)
 
