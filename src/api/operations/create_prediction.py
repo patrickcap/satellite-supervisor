@@ -22,8 +22,12 @@ _logger = setup_logger()
 ss_model_001 = None  # type: ignore
 prediction_router = APIRouter(prefix='/satellite-purpose')
 
-with open(MODEL_PATH, 'rb') as f:
-    ss_model_001 = pickle.load(f)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:  # pylint: disable=unused-argument
+    global ss_model_001
+    ss_model_001 = Model.load_trained_model(MODEL_PATH)
+    yield
 
 
 @prediction_router.post('', response_model=PostSatellitePurposeResponse, status_code=201)
