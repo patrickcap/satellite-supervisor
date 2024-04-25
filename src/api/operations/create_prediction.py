@@ -14,17 +14,19 @@ from src.api.resources.post_satellite_purpose_response import PostSatellitePurpo
 from src.model.model import Model
 from src.utils.logging import setup_logger
 
-MODEL_PATH: Final[str] = './model/ss-001.pkl'
+MODEL_PATH: Final[str] = './models/ss_model_001.pickle'
 
 _logger = setup_logger()
-rf_model = None  # type: ignore
+ss_model_001 = None  # type: ignore
 prediction_router = APIRouter(prefix='/satellite-purpose')
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:  # pylint: disable=unused-argument
-    global rf_model
-    rf_model = Model.load_trained_model(MODEL_PATH)
+    global ss_model_001
+    ss_model_001 = Model.load_trained_model(MODEL_PATH)
+    print('HELOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO')
+    _logger.info('BYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
     yield
 
 
@@ -39,4 +41,15 @@ async def predict_satellite_purpose(satellite: Satellite, api_key: str = Depends
 
 
 def _get_satellite_purpose_prediction(satellite: Satellite) -> float:
-    return 6
+
+    input_df = pd.DataFrame({
+        'country_operator_owner': [0],
+        'operator_owner': [0],
+        'users': [0],
+        'orbit_type': [0],
+        'contractor': [0],
+        'orbit_class': [0]
+    })
+    satellite_purpose = ss_model_001.predict(input_df)
+
+    return satellite_purpose
