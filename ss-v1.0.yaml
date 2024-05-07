@@ -1,0 +1,156 @@
+openapi: 3.0.3
+
+info:
+  title: Satellite Supersivor
+  version: '1.0'
+  description: API for predicting the purpose of a satellite based on external satellite information
+
+paths:
+  /satellite-purpose:
+    post:
+      summary: Predict satellite purpose from external satellite information
+      description: |
+        Uploads external information about the satellite (based on observations) and predicts the purpose of that satellite.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Satellite'
+      responses:
+        '201':
+          description: |
+            A satellite purpose prediction has successfully been created and returned.
+          content:
+            application/json:
+              schema:
+                $ref:
+                   '#/components/schemas/PostSatellitePurposeResponse'
+                example:
+                  satellite_purpose: 3
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+      security:
+        - ApiKeyAuth: []
+
+
+components:
+  schemas:
+    Satellite:
+      type: object
+      properties:
+        country_operator_owner:
+          type: number
+          description: Country of the entity that operates the satellite.
+        operator_owner:
+          type: number
+          description: Country of the entity that owns the satellite.
+        users:
+          type: number
+          description: Industry of the users of the satellite.
+        orbit_type:
+          type: number
+          description: Type of orbit the satellite exists in.
+        contractor:
+          type: number
+          description: Entity that created the satellite.
+        orbit_class:
+          type: number
+          description: Average altitude of the orbit of the satellite.
+      required:
+        - country_operator_owner
+        - operator_owner
+        - users
+        - orbit_type
+        - contractor
+        - orbit_class
+      additionalProperties: false
+    
+    PostSatellitePurposeResponse:
+      type: object
+      properties:
+        satellite_purpose:
+          type: number
+          description: Predicted satellite purpose
+      required:
+        - satellite_purpose
+      additionalProperties: false
+
+    Error:
+      type: object
+      description: |
+        General error response body
+      properties:
+        errors:
+          description: |
+            This field MUST contain an array with at least one error model.
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorItem'
+          minItems: 1
+        status_code:
+          description: |
+            This field MAY contain the HTTP status code used for the response. Otherwise, it MUST be omitted.
+          type: integer
+      required:
+        - errors
+      additionalProperties: false
+
+    ErrorItem:
+      description: |
+        An error message.
+      type: object
+      properties:
+        code:
+          description: |
+            This field MUST contain a snake case string succinctly identifying the problem.
+            This field SHOULD NOT indicate which field, parameter, or header caused the error.
+          type: string
+        message:
+          description: |
+            This field MUST contain a plainly-written, developer-oriented explanation of the solution to the problem in complete, well-formed sentences.
+          type: string
+      required:
+        - code
+        - message
+      additionalProperties: false
+
+  responses:
+    PostSatellitePurposeResponse:
+      description: Response from the air quality model
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PostSatellitePurposeResponse'
+
+    BadRequest:
+      description: |
+        The request body or parameters were incorrect
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: |
+        The API key is missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: |
+        The specified user does not have permission to perform this action
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-key
