@@ -1,7 +1,7 @@
 # Satellite Purpose Prediction
 
 ![Satellite](/assets/images/nasa-8Hjx3GNZYeA-unsplash.jpg)
-*A satellite hovering above the ocean. Credit: [unsplash.com](https://unsplash.com/photos/satellite-flying-on-space-8Hjx3GNZYeA)*
+*A satellite orbiting above the ocean. Credit: [unsplash.com](https://unsplash.com/photos/satellite-flying-on-space-8Hjx3GNZYeA)*
 
 ## Overview
 
